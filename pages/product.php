@@ -238,8 +238,48 @@
                 <!-- </div> -->
               </div>
               <?php
-                $products_name = array("Red Velvet", "Black Forest Slice", "Chantilly Slice", "Tiramisu Cup");
-                $products_price = array("Rp15.000,00", "Rp13.000,00", "Rp13.000,00", "Rp17.000,00");
+                $products = [
+                  [
+                    "name" => "Red Velvet",
+                    "price" => "Rp15.000,00",
+                    "image" => "products-1.jpg"
+                  ],
+                  [
+                    "name" => "Black Forest Slice",
+                    "price" => "Rp13.000,00",
+                    "image" => "products-2.jpg"
+                  ],
+                  [
+                    "name" => "Chantilly Slice",
+                    "price" => "Rp13.000,00",
+                    "image" => "products-3.jpg"
+                  ],
+                  [
+                    "name" => "Tiramisu Cup",
+                    "price" => "Rp17.000,00",
+                    "image" => "products-4.jpg"
+                  ],
+                  [
+                    "name" => "Rich Chocolate Slice",
+                    "price" => "Rp15.000,00",
+                    "image" => "products-5.jpg"
+                  ],
+                  [
+                    "name" => "Oreo Cup",
+                    "price" => "Rp17.000,00",
+                    "image" => "products-6.jpg"
+                  ],
+                  [
+                    "name" => "Tiramisu Slice",
+                    "price" => "Rp13.000,00",
+                    "image" => "products-7.jpg"
+                  ],
+                  [
+                    "name" => "Chantilly Blush Slice",
+                    "price" => "Rp15.000,00",
+                    "image" => "products-8.jpg"
+                  ],
+                ]
               ?>
               <div class="card-body">
                 <table class="table table-bordered">
@@ -253,13 +293,16 @@
                     </tr>
                   </thead>
                   <tbody>
+                  <?php foreach($products as $key => $value){ ?>
                     <tr>
-                        <td>1.</td>
-                        <td><?php echo $products_name[0]?></td>
-                        <td><?php echo $products_price[0]?></td>
+
+                        <?php $key += 1?>
+                        <td><?php echo $key?></td>
+                        <td><?php echo $value["name"]?></td>
+                        <td><?php echo $value["price"]?></td>
                         <td>
                             <div class="text-center">
-                                <img src="../assets/images/products/products-1.jpg" class="img-thumbnail" style="max-width: 150px;" alt="">
+                                <img src="../assets/images/products/<?php echo $value["image"]?>" class="img-thumbnail" style="max-width: 150px;" alt="">
                             </div>
                         </td>
                         <td>
@@ -267,48 +310,7 @@
                             <button class="btn btn-danger"><i class="nav-icon fas fa-trash-alt mr-2"></i>Delete</button>
                         </td>
                     </tr>
-                    <tr>
-                      <td>2.</td>
-                      <td><?php echo $products_name[1]?></td>
-                        <td><?php echo $products_price[1]?></td>
-                        <td>
-                            <div class="text-center">
-                                <img src="../assets/images/products/products-2.jpg" class="img-thumbnail" style="max-width: 150px;" alt="">
-                            </div>
-                        </td>
-                        <td>
-                            <button class="btn btn-info"><i class="nav-icon fas fa-edit mr-2"></i>Edit</button>
-                            <button class="btn btn-danger"><i class="nav-icon fas fa-trash-alt mr-2"></i>Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>3.</td>
-                        <td><?php echo $products_name[2]?></td>
-                        <td><?php echo $products_price[2]?></td>
-                        <td>
-                            <div class="text-center">
-                                <img src="../assets/images/products/products-3.jpg" class="img-thumbnail" style="max-width: 150px;" alt="">
-                            </div>
-                        </td>
-                        <td>
-                            <button class="btn btn-info"><i class="nav-icon fas fa-edit mr-2"></i>Edit</button>
-                            <button class="btn btn-danger"><i class="nav-icon fas fa-trash-alt mr-2"></i>Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                      <td>4.</td>
-                        <td><?php echo $products_name[3]?></td>
-                        <td><?php echo $products_price[3]?></td>
-                        <td>
-                            <div class="text-center">
-                                <img src="../assets/images/products/products-4.jpg" class="img-thumbnail" style="max-width: 150px;" alt="">
-                            </div>
-                        </td>
-                        <td>
-                            <button class="btn btn-info"><i class="nav-icon fas fa-edit mr-2"></i>Edit</button>
-                            <button class="btn btn-danger"><i class="nav-icon fas fa-trash-alt mr-2"></i>Delete</button>
-                        </td>
-                    </tr>
+                    <?php }?>
                   </tbody>
                 </table>
               </div>

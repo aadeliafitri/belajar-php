@@ -249,8 +249,50 @@
       $name = "Adelia Fitri Kristanti";
       $program = "Studi Independent Bersertifikat";
       $class = "Full Stack Web Developer (FSWD)";
-      $products_name = array("Red Velvet", "Black Forest Slice", "Chantilly Slice", "Tiramisu Cup");
-      $products_price = array("Rp15.000,00", "Rp13.000,00", "Rp13.000,00", "Rp17.000,00");
+
+      //array dan perulangan
+      $products = [
+        [
+          "name" => "Red Velvet",
+          "price" => "Rp15.000,00",
+          "image" => "products-1.jpg"
+        ],
+        [
+          "name" => "Black Forest Slice",
+          "price" => "Rp13.000,00",
+          "image" => "products-2.jpg"
+        ],
+        [
+          "name" => "Chantilly Slice",
+          "price" => "Rp13.000,00",
+          "image" => "products-3.jpg"
+        ],
+        [
+          "name" => "Tiramisu Cup",
+          "price" => "Rp17.000,00",
+          "image" => "products-4.jpg"
+        ],
+        [
+          "name" => "Rich Chocolate Slice",
+          "price" => "Rp15.000,00",
+          "image" => "products-5.jpg"
+        ],
+        [
+          "name" => "Oreo Cup",
+          "price" => "Rp17.000,00",
+          "image" => "products-6.jpg"
+        ],
+        [
+          "name" => "Tiramisu Slice",
+          "price" => "Rp13.000,00",
+          "image" => "products-7.jpg"
+        ],
+        [
+          "name" => "Chantilly Blush Slice",
+          "price" => "Rp15.000,00",
+          "image" => "products-8.jpg"
+        ],
+      ]
     ?>       
     <!-- Main content -->
     <section class="content">
@@ -273,38 +315,16 @@
           <h3 class="m-0">Product</h3>
         </div>  
         <div class="row d-flex justify-content-center">
+          <?php foreach($products as $key => $value){ ?>
             <div class="card mr-3" style="width: 16rem;">
-                <img src="../assets/images/products/products-1.jpg" class="card-img-top" alt="">
+                <img src="../assets/images/products/<?php echo $value["image"]?>" class="card-img-top" alt="">
                 <div class="card-body">
-                    <h4 class="card-title"><?php echo $products_name[0]?></h4>
-                    <p class="card-text text-muted text-sm"><?php echo $products_price[0]?></p>
+                    <h4 class="card-title"><?php echo $value["name"]?></h4>
+                    <p class="card-text text-muted text-sm"><?php echo $value["price"]?></p>
                     <a href="#" class="btn btn-primary text-sm"><i class="fas fa-solid fa-cart-shopping"></i> Buy This</a>
                 </div>
             </div>
-            <div class="card mr-3" style="width: 16rem;">
-                <img src="../assets/images/products/products-2.jpg" class="card-img-top" alt="">
-                <div class="card-body">
-                    <h4 class="card-title"><?php echo $products_name[1]?></h4>
-                    <p class="card-text text-muted text-sm"><?php echo $products_price[1]?></p>
-                    <a href="#" class="btn btn-primary text-sm"><i class="fas fa-solid fa-cart-shopping"></i> Buy This</a>
-                </div>
-            </div>
-            <div class="card mr-3" style="width: 16rem;">
-                <img src="../assets/images/products/products-3.jpg" class="card-img-top" alt="">
-                <div class="card-body">
-                    <h4 class="card-title"><?php echo $products_name[2]?></h4>
-                    <p class="card-text text-muted text-sm"><?php echo $products_price[2]?></p>
-                    <a href="#" class="btn btn-primary text-sm"><i class="fas fa-solid fa-cart-shopping"></i> Buy This</a>
-                </div>
-            </div>
-            <div class="card mr-3" style="width: 16rem;">
-                <img src="../assets/images/products/products-4.jpg" class="card-img-top" alt="">
-                <div class="card-body">
-                    <h4 class="card-title"><?php echo $products_name[3]?></h4>
-                    <p class="card-text text-muted text-sm"><?php echo $products_price[3]?></p>
-                    <a href="#" class="btn btn-primary text-sm"><i class="fas fa-solid fa-cart-shopping"></i> Buy This</a>
-                </div>
-            </div>
+          <?php }?>
         </div>
       </div><!-- /.container-fluid -->
     </section>
