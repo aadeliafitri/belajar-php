@@ -1,3 +1,13 @@
+<?php
+session_start();
+
+//Periksa apakah pengguna sudah login
+if (!isset($_SESSION['email'])) {
+    header('Location: login.php');
+    exit();
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -216,6 +226,15 @@
                    <i class="nav-icon fas fa-cheese"></i>
                    <p>
                      Products
+                   </p>
+                 </a>
+               </li>
+               <li class="nav-item">
+                 <a href="logout.php" class="nav-link">
+                   <!-- <i class="nav-icon far fa-calendar-alt"></i> -->
+                   <i class="nav-icon fas fa-sign-out-alt"></i>
+                   <p>
+                     Logout
                    </p>
                  </a>
                </li>
