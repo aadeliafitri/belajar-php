@@ -1,12 +1,25 @@
-<?php 
-include 'koneksi.php'; 
+<?php include 'koneksi.php'; ?>
 
-if((isset($_GET['aksi']))&&(isset($_GET['data']))){
-	if($_GET['aksi']=='hapus'){
-		$productID= $_GET['data'];
-		//hapus data profil
-		$deleteProduct = "delete from `products` where `id` = '$productID'";
-		mysqli_query($con,$deleteProduct);
+<?php
+session_start();
+
+if(isset($_GET['data'])){
+	$productID = $_GET['data'];
+	$_SESSION['id_product']=$productID;
+	//get data produk
+	$selectProduct = "SELECT `product_name`, `product_code`, `category_id`, `description`, `price`, `discount_amount`, `stock`, `unit`, `is_active` FROM `products` WHERE `id`='$productID'";
+	$querySelect = mysqli_query($con, $selectProduct);
+	while($dataProduct = mysqli_fetch_row($querySelect)){
+		$productName= $dataProduct[0];
+		$productCode = $dataProduct[1];
+		$categoryID= $dataProduct[2];
+        $description = $dataProduct[3];
+        $price = $dataProduct[4];
+        $discount = $dataProduct[5];
+        $stock= $dataProduct[6];
+        $unit = $dataProduct[7];
+        $isActive = $dataProduct[8];
+        // $image = $dataProduct[5];
 	}
 }
 ?>
@@ -231,7 +244,8 @@ if((isset($_GET['aksi']))&&(isset($_GET['data']))){
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
-              <li class="breadcrumb-item active">Products</li>
+              <li class="breadcrumb-item"><a href="product.php">Products</a></li>
+              <li class="breadcrumb-item active">Edit Product</li>
             </ol>
           </div>
         </div>
@@ -245,87 +259,113 @@ if((isset($_GET['aksi']))&&(isset($_GET['data']))){
           <div class="col-12">
             <div class="card">
               <div class="card-header d-flex justify-content-end">
-                <h3 class="card-title col align-self-center">List Products</h3>
-                <!-- <div class="col justify-content-md-end"> -->
-                    <a href="addproduct.php" class="btn btn-primary col-sm-2"><i class="nav-icon fas fa-plus mr-2"></i> Add Product</a>
-                <!-- </div> -->
+                <h3 class="card-title col align-self-center">Edit Products</h3>
               </div>
               <div class="card-body">
                 <div class="col-12 justify-content-center">
-                <?php if(!empty($_GET['notif'])){?>
-                  <?php if($_GET['notif']=="tambahberhasil"){?>
-                      <div class="alert alert-success bg-success text-white" role="alert">
-                      Data Berhasil Ditambahkan</div>
-                  <?php } else if($_GET['notif']=="editberhasil"){?>
-                      <div class="alert alert-success bg-success text-white" role="alert">
-                      Data Berhasil Diubah</div>
-                  <?php } else if($_GET['notif']=="hapusberhasil"){?>
-                      <div class="alert alert-success bg-success text-white" role="alert">
-                      Data Berhasil Dihapus</div>
+                <?php if((!empty($_GET['notif']))&&(!empty($_GET['jenis']))){?>
+                      <?php if($_GET['notif']=="editkosong"){?>
+                          <div class="alert alert-danger bg-danger" role="alert">Maaf data <?php echo $_GET['jenis'];?> wajib di isi</div>
+                      <?php }?>
                   <?php }?>
-                <?php }?>
                 </div>
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th style="width: 10px">#</th>
-                      <th>Product Name</th>
-                      <th>Category</th>
-                      <th>Price</th>
-                      <th>Image</th>
-                      <th style="width: 200px;">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <?php 
-                    $batas = 5;
-                    if(!isset($_GET['halaman'])){
-                        $posisi = 0;
-                        $halaman = 1;
-                    }else{
-                        $halaman = $_GET['halaman'];
-                        $posisi = ($halaman-1) * $batas;
-                    } 
-                    $readProduct = "SELECT `p`.`id`, `p`.`product_name`, `p`.`price`, `p`.`image`,
-                            `c`.`category_name` FROM `products` `p` INNER JOIN `product_categories` `c` ON `p`.`category_id` = `c`.`id` ORDER BY `c`.`category_name`, `p`.`product_name` limit $posisi, $batas";
-                    $queryReadProduct = mysqli_query($con, $readProduct);
-                    $no = $posisi+1;
-                    while($dataProduct= mysqli_fetch_row($queryReadProduct)){
-                        $productID = $dataProduct[0];
-                        $productName = $dataProduct[1];
-                        $price = $dataProduct[2];
-                        $image = $dataProduct[3];
-                        $category = $dataProduct[4];
-                    ?>
-                    <tr>
-                        <td><?php echo $no?></td>
-                        <td><?php echo $productName?></td>
-                        <td><?php echo $category?></td>
-                        <td><?php echo $price?></td>
-                        <td>
-                            <div class="text-center">
-                                <img src="../assets/file/<?php echo $image?>" class="img-thumbnail" style="max-width: 150px;" alt="">
+                <form action="proses-editproduct.php" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="productCode">Product Code</label>
+                        <input type="text" class="form-control" id="productCode" name="product_code" placeholder="Product Code" value="<?php echo $productCode;?>">
+                    </div>
+                    <div class="form-group">
+                        <label for="productName">Product Name</label>
+                        <input type="text" class="form-control" id="productName" name="product_name" placeholder="Product Name" value="<?php echo $productName;?>">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description Product</label>
+                        <textarea class="form-control" id="description" rows="3" name="description" placeholder="Describe Your Product" value=""><?php echo $description;?></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" name="category" class="form-control">
+                        <option>Choose Category</option>
+                        <?php 
+                            $sql = "SELECT `id`,`category_name` FROM `product_categories` ORDER BY `category_name`";
+                            $query = mysqli_query($con, $sql);
+                            while($data_k = mysqli_fetch_row($query)){
+                            $idCategory = $data_k[0];
+                            $categoryName = $data_k[1];
+                            ?>
+                            <option value="<?php echo $idCategory;?>"
+                                <?php if($idCategory==$categoryID){?>
+                                selected <?php }?>>
+                                <?php echo $categoryName;?>
+                            </option>
+                        <?php }?>
+                        </select>
+                    </div>  
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="price">Price</label>
+                                <div class="input-group mb-3">
+                                    <input type="number" name="price" id="price" class="form-control" value="<?php echo $price;?>">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">.00</span>
+                                    </div>
+                                </div>
+                            </div>  
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="discount">Discount</label>
+                                <div class="input-group mb-3">
+                                    <input type="number" name="discount" id="discount" class="form-control" value="<?php echo $discount;?>">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                </div> 
+                            </div>     
+                        </div>
+                    </div>      
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                            <label for="stock">Stock</label>
+                            <input type="number" class="form-control" id="stock" name="stock" placeholder="Stock" value="<?php echo $stock;?>">
                             </div>
-                        </td>
-                        <td>
-                            <a href="editproduct.php?data=<?php echo $productID;?>" class="btn btn-info"><i class="nav-icon fas fa-edit mr-2"></i>Edit</a>
-                            <a href="javascript:if(confirm('Anda yakin ingin menghapus data <?php echo $productName; ?>?')) window.location.href = 'product.php?aksi=hapus&data=<?php echo $productID;?>&notif=hapusberhasil'" class="btn btn-danger"><i class="nav-icon fas fa-trash-alt mr-2"></i>Delete</a>
-                        </td>
-                    </tr>
-                    <?php $no++; }?>
-                  </tbody>
-                </table>
-              </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                            <label for="unit">Unit</label>
+                            <input type="text" class="form-control" id="unit" name="unit" placeholder="Unit" value="<?php echo $unit;?>">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-9">
+                            <div class="form-group">
+                            <label for="image">Image</label>
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="image" name="file">
+                                <label class="custom-file-label" for="image">Choose file</label>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-group">
+                            <label for="toogleActive">Active</label>
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="isActive" name="is_active" 
+                                <?php if($isActive == 1){?>checked <?php }?>>
+                                <label class="custom-control-label" for="isActive"><small>yes</small></label>
+                            </div>
+                            </div>
+                        </div>
+                    </div> 
+                </div>
               <!-- /.card-body -->
               <div class="card-footer clearfix">
-                <ul class="pagination pagination-sm m-0 float-right">
-                  <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
-                  <li class="page-item"><a class="page-link" href="#">1</a></li>
-                  <li class="page-item"><a class="page-link" href="#">2</a></li>
-                  <li class="page-item"><a class="page-link" href="#">3</a></li>
-                  <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
-                </ul>
+                <button type="submit" class="btn btn-primary">Save</button>
               </div>
+              </form> 
             </div>
             <!-- /.card -->
           </div>
@@ -337,6 +377,7 @@ if((isset($_GET['aksi']))&&(isset($_GET['data']))){
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+
 
   <footer class="main-footer">
     <div class="float-right d-none d-sm-block">
