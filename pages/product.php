@@ -9,6 +9,16 @@ if((isset($_GET['aksi']))&&(isset($_GET['data']))){
 		mysqli_query($con,$deleteProduct);
 	}
 }
+
+if (isset($_GET['aksi']) && isset($_POST['search'])) {
+  if ($_GET['aksi']=='cari') {
+  $_SESSION['search'] = $_POST['search'];
+  $search = $_SESSION['search'];
+  }
+}
+if (isset($_SESSION['search'])) {
+  $search = $_SESSION['search'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -244,11 +254,23 @@ if((isset($_GET['aksi']))&&(isset($_GET['data']))){
         <div class="row">
           <div class="col-12">
             <div class="card">
-              <div class="card-header d-flex justify-content-end">
-                <h3 class="card-title col align-self-center">List Products</h3>
-                <!-- <div class="col justify-content-md-end"> -->
-                    <a href="addproduct.php" class="btn btn-primary col-sm-2"><i class="nav-icon fas fa-plus mr-2"></i> Add Product</a>
-                <!-- </div> -->
+              <div class="card-header d-flex col-sm-12 justify-content-between">
+                <div class="col-10">
+                  <form action="product.php?aksi=cari" method="post">
+                    <div class="input-group col-sm-4 mr-3">
+                      <input type="text" name="search" id="search" class="form-control" placeholder="Search">
+                      <div class="input-group-append">
+                          <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search fa-sm"></i>
+                          </button>
+                      </div>
+                    </div>
+                  </form>
+                </div> 
+                <!-- <h3 class="card-title col align-self-center">List Products</h3> -->
+                <div class="col-sm-2">
+                    <a href="addproduct.php" class="btn btn-primary"><i class="nav-icon fas fa-plus mr-2"></i> Add Product</a>
+                </div>
               </div>
               <div class="card-body">
                 <div class="col-12 justify-content-center">
@@ -278,16 +300,20 @@ if((isset($_GET['aksi']))&&(isset($_GET['data']))){
                   </thead>
                   <tbody>
                     <?php 
-                    $batas = 5;
-                    if(!isset($_GET['halaman'])){
+                    $batas = 2;
+                    if(!isset($_GET['page'])){
                         $posisi = 0;
-                        $halaman = 1;
+                        $page = 1;
                     }else{
-                        $halaman = $_GET['halaman'];
-                        $posisi = ($halaman-1) * $batas;
+                        $page = $_GET['page'];
+                        $posisi = ($page-1) * $batas;
                     } 
                     $readProduct = "SELECT `p`.`id`, `p`.`product_name`, `p`.`price`, `p`.`image`,
-                            `c`.`category_name` FROM `products` `p` INNER JOIN `product_categories` `c` ON `p`.`category_id` = `c`.`id` ORDER BY `c`.`category_name`, `p`.`product_name` limit $posisi, $batas";
+                            `c`.`category_name` FROM `products` `p` INNER JOIN `product_categories` `c` ON `p`.`category_id` = `c`.`id` ";
+                    if (isset($search) && !empty($search)) {
+                      $readProduct .= " WHERE `p`.`product_name` LIKE '%$search%' || `c`.`category_name` LIKE '%$search%' ";
+                    }
+                    $readProduct .= "ORDER BY `c`.`category_name`, `p`.`product_name` limit $posisi, $batas";
                     $queryReadProduct = mysqli_query($con, $readProduct);
                     $no = $posisi+1;
                     while($dataProduct= mysqli_fetch_row($queryReadProduct)){
@@ -317,13 +343,47 @@ if((isset($_GET['aksi']))&&(isset($_GET['data']))){
                 </table>
               </div>
               <!-- /.card-body -->
+
+              <?php
+                $countData = "SELECT `p`.`id`, `p`.`product_name`, `p`.`price`, `p`.`image`,
+                `c`.`category_name` FROM `products` `p` INNER JOIN `product_categories` `c` ON `p`.`category_id` = `c`.`id` ";
+                if (isset($search) && !empty($search)) {
+                  $countData .= " WHERE `p`.`product_name` LIKE '%$search%' || `c`.`category_name` LIKE '%$search%' ";
+                }
+                $countData .= "ORDER BY `c`.`category_name`, `p`.`product_name`";
+                $queryCountData = mysqli_query($con, $countData);
+                $amountData = mysqli_num_rows($queryCountData);
+                $amountPage = ceil($amountData/$batas);
+              ?>
               <div class="card-footer clearfix">
                 <ul class="pagination pagination-sm m-0 float-right">
-                  <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
-                  <li class="page-item"><a class="page-link" href="#">1</a></li>
-                  <li class="page-item"><a class="page-link" href="#">2</a></li>
-                  <li class="page-item"><a class="page-link" href="#">3</a></li>
-                  <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+                  <?php
+                    if ($amountPage == 0) {
+                      //nothing page
+                    }elseif ($amountPage == 1) {
+                      echo "<li class='page-item'><a class='page-link'>1</a></li>";
+                    }else {
+                      $prev = $page-1;
+                      $next = $page+1;
+                      if ($page!=1) {
+                        echo "<li class='page-item'><a class='page-link' href='product.php?page=1'>First</a></li>";
+                        echo "<li class='page-item'><a class='page-link' href='product.php?page=$prev'>&laquo;</a></li>";
+                      }
+                      for ($i=1; $i <= $amountPage; $i++) { 
+                        if ($i > $page - 5 and $i < $page + 5) {
+                          if ($i != $page) {
+                            echo "<li class='page-item'><a class='page-link' href='product.php?page=$i'>$i</a></li>";
+                          } else {
+                            echo "<li class='page-item'><a class='page-link'>$i</a></li>";
+                          }
+                        } 
+                      }
+                      if ($page!=$amountPage) {
+                        echo "<li class='page-item'><a class='page-link' href='product.php?page=$next'>&raquo;</a></li>";
+                        echo "<li class='page-item'><a class='page-link' href='product.php?page=$amountPage'>Last</a></li>";
+                      }
+                    }
+                  ?>
                 </ul>
               </div>
             </div>
