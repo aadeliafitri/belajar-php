@@ -214,11 +214,20 @@ if (isset($_SESSION['search'])) {
                with font-awesome or any other icon font library -->
                <!-- <li class="nav-header"></li> -->
                <li class="nav-item">
-                 <a href="newproduct.html" class="nav-link active">
+                 <a href="product.php" class="nav-link active">
                    <!-- <i class="nav-icon far fa-calendar-alt"></i> -->
                    <i class="nav-icon fas fa-cheese"></i>
                    <p>
                      Products
+                   </p>
+                 </a>
+               </li>
+               <li class="nav-item">
+                 <a href="logout.php" class="nav-link">
+                   <!-- <i class="nav-icon far fa-calendar-alt"></i> -->
+                   <i class="nav-icon fas fa-sign-out-alt"></i>
+                   <p>
+                     Logout
                    </p>
                  </a>
                </li>
@@ -308,12 +317,13 @@ if (isset($_SESSION['search'])) {
                         $page = $_GET['page'];
                         $posisi = ($page-1) * $batas;
                     } 
-                    $readProduct = "SELECT `p`.`id`, `p`.`product_name`, `p`.`price`, `p`.`image`,
-                            `c`.`category_name` FROM `products` `p` INNER JOIN `product_categories` `c` ON `p`.`category_id` = `c`.`id` ";
+                    // $readProduct = "SELECT `p`.`id`, `p`.`product_name`, `p`.`price`, `p`.`image`,
+                    //         `c`.`category_name` FROM `products` `p` INNER JOIN `product_categories` `c` ON `p`.`category_id` = `c`.`id` ";
+                    $readProduct = "SELECT * FROM view_products";
                     if (isset($search) && !empty($search)) {
-                      $readProduct .= " WHERE `p`.`product_name` LIKE '%$search%' || `c`.`category_name` LIKE '%$search%' ";
+                      $readProduct .= " WHERE `view_products`.`product_name` LIKE '%$search%' || `view_products`.`category_name` LIKE '%$search%' ";
                     }
-                    $readProduct .= "ORDER BY `c`.`category_name`, `p`.`product_name` limit $posisi, $batas";
+                    $readProduct .= " ORDER BY `view_products`.`category_name`, `view_products`.`product_name` LIMIT $posisi, $batas";
                     $queryReadProduct = mysqli_query($con, $readProduct);
                     $no = $posisi+1;
                     while($dataProduct= mysqli_fetch_row($queryReadProduct)){

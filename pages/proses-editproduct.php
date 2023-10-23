@@ -31,6 +31,7 @@ if(isset($_SESSION['id_product'])){
     $queryImage = mysqli_query($con,$selectImage);
     while($dataImage = mysqli_fetch_row($queryImage)){
         $image= $dataImage[0];
+        // var_dump($image);
         //echo $foto;
     }
    
@@ -64,7 +65,7 @@ if(isset($_SESSION['id_product'])){
 	        WHERE `id`='$productID'";
 	        mysqli_query($con,$sql);
         }else{
-	        $sql = "UPDATE `products` set `category_id`='$categoryProduct', `product_name`='$productName', `product_code`='$productCode', `description`='$descProduct', `price`='$price', `discount_amount`='$discAmount',`stock`='$stock', `unit`='$unit', `is_active`='$isActive', `image`='$fileName'
+	        $sql = "UPDATE `products` set `category_id`='$categoryProduct', `product_name`='$productName', `product_code`='$productCode', `description`='$descProduct', `price`='$price', `discount_amount`='$discAmount',`stock`='$stock', `unit`='$unit', `is_active`='$isActive', `image`='$image'
 	        WHERE `id`='$productID'";
 	        mysqli_query($con,$sql);
         }

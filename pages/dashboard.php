@@ -1,12 +1,13 @@
 <?php
-session_start();
+include 'koneksi.php';
 
-//Periksa apakah pengguna sudah login
-if (!isset($_SESSION['email'])) {
-    header('Location: login.php');
-    exit();
-}
+// session_start();
 
+// //Periksa apakah pengguna sudah login
+// if (!isset($_SESSION['email'])) {
+//     header('Location: login.php');
+//     exit();
+// }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -265,12 +266,33 @@ if (!isset($_SESSION['email'])) {
     </div>
     <!-- /.content-header -->
     <?php
-      $name = "Adelia Fitri Kristanti";
+    $countProducts = "SELECT COUNT(*) FROM products";
+    $queryCountPro = mysqli_query($con, $countProducts);
+    if (!$queryCountPro) {
+      die(mysqli_error($con));
+    }
+    $totalProducts = mysqli_fetch_row($queryCountPro)[0];
+
+    $countCustomers = "SELECT COUNT(*) FROM customers";
+    $queryCountCust = mysqli_query($con, $countCustomers);
+    if (!$queryCountCust) {
+      die(mysqli_error($con));
+    }
+    $totalCustomers = mysqli_fetch_row($queryCountCust)[0];
+
+    $countVendors = "SELECT COUNT(*) FROM vendors";
+    $queryCountVend = mysqli_query($con, $countVendors);
+    if (!$queryCountVend) {
+      die(mysqli_error($con));
+    }
+    $totalVendors = mysqli_fetch_row($queryCountVend)[0];
+    
+      /**$name = "Adelia Fitri Kristanti";
       $program = "Studi Independent Bersertifikat";
-      $class = "Full Stack Web Developer (FSWD)";
+      $class = "Full Stack Web Developer (FSWD)";*/
 
       //array dan perulangan
-      $products = [
+      /**$products = [
         [
           "name" => "Red Velvet",
           "price" => "Rp15.000,00",
@@ -311,40 +333,102 @@ if (!isset($_SESSION['email'])) {
           "price" => "Rp15.000,00",
           "image" => "products-8.jpg"
         ],
-      ]
+      ]*/
     ?>       
     <!-- Main content -->
     <section class="content">
       <div class="container-fluid">
-        <div class="card mb-3 ml-3" style="max-width: 540px;">
+        <!-- Small boxes (Stat box) -->
+        <div class="row">
+          <div class="col-lg-4 col-6">
+            <!-- small box -->
+            <div class="small-box bg-info">
+              <div class="inner">
+                <h3><?php echo $totalProducts?></h3>
+                
+                <p>Products</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-bag"></i>
+              </div>
+              <a href="product.php" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-4 col-6">
+            <!-- small box -->
+            <div class="small-box bg-success">
+              <div class="inner">
+                <h3><?php echo $totalCustomers?></h3>
+
+                <p>Customers</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-stats-bars"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-4 col-6">
+            <!-- small box -->
+            <div class="small-box bg-warning">
+              <div class="inner">
+                <h3><?php echo $totalVendors?></h3>
+
+                <p>Vendors</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-person-add"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <!-- <div class="col-lg-3 col-6">
+            <div class="small-box bg-danger">
+              <div class="inner">
+                <h3>65</h3>
+
+                <p>Unique Visitors</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-pie-graph"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div> -->
+          <!-- ./col -->
+        </div>
+        <!-- <div class="card mb-3 ml-3" style="max-width: 540px;">
           <div class="row">
             <div class="col-md-4">
               <img src="../assets/images/profile/profil-adel.jpg" class="img-fluid rounded-start" alt="">
             </div>
             <div class="col-md-8">
               <div class="card-body">
-                <h5 class="card-title"><?php echo $name?></h5>
-                <p class="card-text">Program: <span class="text-bold"><?php echo $program?></span></p>
-                <p class="card-text"><small class="text-muted"><?php echo $class?></small></p>
+                <h5 class="card-title"><?php //echo $name?></h5>
+                <p class="card-text">Program: <span class="text-bold"><?php //echo $program?></span></p>
+                <p class="card-text"><small class="text-muted"><?php //echo $class?></small></p>
               </div>
             </div>
           </div>
-        </div>
-        <div class="mb-3">
+        </div> -->
+        <!-- <div class="mb-3">
           <h3 class="m-0">Product</h3>
         </div>  
         <div class="row d-flex justify-content-center">
-          <?php foreach($products as $key => $value){ ?>
+          <?php //foreach($products as $key => $value){ ?>
             <div class="card mr-3" style="width: 16rem;">
-                <img src="../assets/images/products/<?php echo $value["image"]?>" class="card-img-top" alt="">
+                <img src="../assets/images/products/<?php //echo $value["image"]?>" class="card-img-top" alt="">
                 <div class="card-body">
-                    <h4 class="card-title"><?php echo $value["name"]?></h4>
-                    <p class="card-text text-muted text-sm"><?php echo $value["price"]?></p>
+                    <h4 class="card-title"><?php //echo $value["name"]?></h4>
+                    <p class="card-text text-muted text-sm"><?php //echo $value["price"]?></p>
                     <a href="#" class="btn btn-primary text-sm"><i class="fas fa-solid fa-cart-shopping"></i> Buy This</a>
                 </div>
             </div>
-          <?php }?>
-        </div>
+          <?php //}?>
+        </div> -->
       </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
