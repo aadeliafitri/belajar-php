@@ -1,6 +1,30 @@
 <?php
 include 'koneksi.php';
+include 'proses-login.php';
+include 'helpers.php';
 
+if (!isset($_SESSION['id']) || empty($_SESSION['id'])) {
+  header("Location: login.php");
+  exit;
+}
+
+date_default_timezone_set('Asia/Jakarta');
+$hari = getDayName(date("Y-m-d"));
+$tanggal = date("d");
+$bulan = getMonthName(date("Y-m-d H:i:s"));
+$tahun = date("Y");
+$waktu =  date("H:i:s");
+
+$idUser = $_SESSION['id'];
+
+//get profil
+$sql = "select `name` from `users` 
+where `id`='$idUser'";
+ //echo $sql;
+$query = mysqli_query($con, $sql);
+while($data = mysqli_fetch_row($query)){
+	$name = $data[0];
+}
 // session_start();
 
 // //Periksa apakah pengguna sudah login
@@ -52,13 +76,15 @@ include 'koneksi.php';
       <li class="nav-item">
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
-      <li class="nav-item d-none d-sm-inline-block">
+      <li class="nav-item mt-2"><?php echo "<small>$hari, $tanggal $bulan $tahun $waktu</small>"?></li>
+      <!-- <li class="nav-item d-none d-sm-inline-block">
         <a href="index3.html" class="nav-link">Home</a>
       </li>
       <li class="nav-item d-none d-sm-inline-block">
         <a href="#" class="nav-link">Contact</a>
-      </li>
+      </li> -->
     </ul>
+    
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
@@ -199,7 +225,7 @@ include 'koneksi.php';
           <img src="../dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-          <a href="#" class="d-block">Alexander Pierce</a>
+          <a href="#" class="d-block"><?php echo $name?></a>
         </div>
       </div>
 

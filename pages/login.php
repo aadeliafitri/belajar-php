@@ -28,32 +28,42 @@
         <h3 class="text-center">Welcome Back!</h3>
         <p class="login-box-msg">Enter your details to get sign in to your account</p>
 
-      <?php
-      if (isset($_GET['error']) && $_GET['error'] == 1) {
-          echo '<p style="color: red;">Login failed. Please check your username and password.</p>';
-      }
-      ?>
+        <?php if(!empty($_GET['gagal'])){?>
+          <?php if($_GET['gagal']=="userKosong"){?>
+            <span class="text-danger">
+            Maaf Username Tidak Boleh Kosong
+            </span>
+            <?php } else if($_GET['gagal']=="passKosong"){?>
+            <span class="text-danger">
+                Maaf Password Tidak Boleh Kosong
+            </span>
+            <?php } else {?>
+            <span class="text-danger">
+                Maaf Username dan Password Anda Salah
+            </span>
+          <?php }?>
+        <?php }?>                                                                                                                                                 
       <form action="proses-login.php" method="post">
         <div class="input-group mb-3">
-          <input type="email" name="email" class="form-control" placeholder="Email">
           <div class="input-group-append">
             <div class="input-group-text">
-              <span class="fas fa-envelope"></span>
+              <span>+62</span>
             </div>
           </div>
+          <input type="text" name="username" class="form-control" placeholder="Username">
         </div>
         <div class="input-group">
-          <input type="password" name="password" class="form-control" placeholder="Password">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
             </div>
           </div>
+          <input type="password" name="password" class="form-control" placeholder="Password">
         </div>
         <p class="text-end">
             <a href="forgot-password.html" class="text-dark">Forgot Password?</a>
         </p>
-        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+        <button type="submit" name="login" value="login" class="btn btn-primary btn-block">Sign In</button>
       </form>
 
       <!-- <div class="social-auth-links text-center mt-2 mb-3">
@@ -67,7 +77,7 @@
       <!-- /.social-auth-links -->
 
       <p class="mb-0 mt-3 text-center">
-        Don't have an account? <a href="register.html" class="text-dark fw-bold"><b>Sign up</b></a>
+        Don't have an account? <a href="register.php" class="text-dark fw-bold"><b>Sign up</b></a>
       </p>
     </div>
     <!-- /.card-body -->
