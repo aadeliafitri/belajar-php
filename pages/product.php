@@ -1,5 +1,7 @@
 <?php 
-include 'koneksi.php'; 
+require_once 'koneksi.php'; 
+
+include '../models/product.php';
 
 include 'helpers.php';
 
@@ -10,14 +12,24 @@ $bulan = getMonthName(date("Y-m-d H:i:s"));
 $tahun = date("Y");
 $waktu =  date("H:i:s");
 
+$db = new Database();
+$product = new Product($db);
+
 if((isset($_GET['aksi']))&&(isset($_GET['data']))){
 	if($_GET['aksi']=='hapus'){
 		$productID= $_GET['data'];
+    $product->deleteProduct($productID);
 		//hapus data profil
-		$deleteProduct = "delete from `products` where `id` = '$productID'";
-		mysqli_query($con,$deleteProduct);
+		// $deleteProduct = "delete from `products` where `id` = '$productID'";
+		// mysqli_query($con,$deleteProduct);
 	}
 }
+
+
+// $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+
+// $no = ($page - 1) * $perPage + 1;
 
 if (isset($_GET['aksi']) && isset($_POST['search'])) {
   if ($_GET['aksi']=='cari') {
@@ -319,29 +331,46 @@ if (isset($_SESSION['search'])) {
                   </thead>
                   <tbody>
                     <?php 
-                    $batas = 2;
+                    $perPage = 2; // Jumlah produk per halaman
                     if(!isset($_GET['page'])){
-                        $posisi = 0;
-                        $page = 1;
-                    }else{
-                        $page = $_GET['page'];
-                        $posisi = ($page-1) * $batas;
-                    } 
-                    // $readProduct = "SELECT `p`.`id`, `p`.`product_name`, `p`.`price`, `p`.`image`,
-                    //         `c`.`category_name` FROM `products` `p` INNER JOIN `product_categories` `c` ON `p`.`category_id` = `c`.`id` ";
-                    $readProduct = "SELECT * FROM view_products";
-                    if (isset($search) && !empty($search)) {
-                      $readProduct .= " WHERE `view_products`.`product_name` LIKE '%$search%' || `view_products`.`category_name` LIKE '%$search%' ";
-                    }
-                    $readProduct .= " ORDER BY `view_products`.`category_name`, `view_products`.`product_name` LIMIT $posisi, $batas";
-                    $queryReadProduct = mysqli_query($con, $readProduct);
-                    $no = $posisi+1;
-                    while($dataProduct= mysqli_fetch_row($queryReadProduct)){
-                        $productID = $dataProduct[0];
-                        $productName = $dataProduct[1];
-                        $price = $dataProduct[2];
-                        $image = $dataProduct[3];
-                        $category = $dataProduct[4];
+                          $posisi = 0;
+                          $page = 1;
+                      }else{
+                          $page = $_GET['page'];
+                          $posisi = ($page-1) * $perPage;
+                      } 
+                      $products = $product->getProducts($page, $perPage, $search);
+                      // var_dump($products);
+                      $no = $posisi+1;
+                      while($dataProduct= $products->fetch_row()){
+                            $productID = $dataProduct[0];
+                            $productName = $dataProduct[1];
+                            $price = $dataProduct[2];
+                            // $image = $dataProduct[3];
+                            $category = $dataProduct[4];
+                    // $batas = 2;
+                    // if(!isset($_GET['page'])){
+                    //     $posisi = 0;
+                    //     $page = 1;
+                    // }else{
+                    //     $page = $_GET['page'];
+                    //     $posisi = ($page-1) * $batas;
+                    // } 
+                    // // $readProduct = "SELECT `p`.`id`, `p`.`product_name`, `p`.`price`, `p`.`image`,
+                    // //         `c`.`category_name` FROM `products` `p` INNER JOIN `product_categories` `c` ON `p`.`category_id` = `c`.`id` ";
+                    // $readProduct = "SELECT * FROM view_products";
+                    // if (isset($search) && !empty($search)) {
+                    //   $readProduct .= " WHERE `view_products`.`product_name` LIKE '%$search%' || `view_products`.`category_name` LIKE '%$search%' ";
+                    // }
+                    // $readProduct .= " ORDER BY `view_products`.`category_name`, `view_products`.`product_name` LIMIT $posisi, $batas";
+                    // $queryReadProduct = mysqli_query($con, $readProduct);
+                    // $no = $posisi+1;
+                    // while($dataProduct= mysqli_fetch_row($queryReadProduct)){
+                    //     $productID = $dataProduct[0];
+                    //     $productName = $dataProduct[1];
+                    //     $price = $dataProduct[2];
+                    //     $image = $dataProduct[3];
+                    //     $category = $dataProduct[4];
                     ?>
                     <tr>
                         <td><?php echo $no?></td>
@@ -349,9 +378,22 @@ if (isset($_SESSION['search'])) {
                         <td><?php echo $category?></td>
                         <td><?php echo $price?></td>
                         <td>
-                            <div class="text-center">
+                        <div class="text-center">
+                        <?php
+                          $imageLocations = json_decode($dataProduct[3]);
+                          if (!empty($imageLocations) && is_array($imageLocations)) {
+                                  foreach ($imageLocations as $imageLocation) {
+                                      echo '<img src="../assets/file/' . $imageLocation . '" class="img-thumbnail" style="max-width: 150px;" alt="">';
+                                  }
+                          } else {
+                              echo 'Tidak ada gambar yang tersedia';
+                          }
+                        ?>
+                            
+                    </div>
+                            <!-- <div class="text-center">
                                 <img src="../assets/file/<?php echo $image?>" class="img-thumbnail" style="max-width: 150px;" alt="">
-                            </div>
+                            </div> -->
                         </td>
                         <td>
                             <a href="editproduct.php?data=<?php echo $productID;?>" class="btn btn-info"><i class="nav-icon fas fa-edit mr-2"></i>Edit</a>
@@ -365,15 +407,16 @@ if (isset($_SESSION['search'])) {
               <!-- /.card-body -->
 
               <?php
-                $countData = "SELECT `p`.`id`, `p`.`product_name`, `p`.`price`, `p`.`image`,
-                `c`.`category_name` FROM `products` `p` INNER JOIN `product_categories` `c` ON `p`.`category_id` = `c`.`id` ";
-                if (isset($search) && !empty($search)) {
-                  $countData .= " WHERE `p`.`product_name` LIKE '%$search%' || `c`.`category_name` LIKE '%$search%' ";
-                }
-                $countData .= "ORDER BY `c`.`category_name`, `p`.`product_name`";
-                $queryCountData = mysqli_query($con, $countData);
-                $amountData = mysqli_num_rows($queryCountData);
-                $amountPage = ceil($amountData/$batas);
+                // $countData = "SELECT `p`.`id`, `p`.`product_name`, `p`.`price`, `p`.`image`,
+                // `c`.`category_name` FROM `products` `p` INNER JOIN `product_categories` `c` ON `p`.`category_id` = `c`.`id` ";
+                // if (isset($search) && !empty($search)) {
+                //   $countData .= " WHERE `p`.`product_name` LIKE '%$search%' || `c`.`category_name` LIKE '%$search%' ";
+                // }
+                // $countData .= "ORDER BY `c`.`category_name`, `p`.`product_name`";
+                // $queryCountData = mysqli_query($con, $countData);
+                // $amountData = mysqli_num_rows($queryCountData);
+                $totalProducts = $product->getProductCount($search);
+                $amountPage = ceil($totalProducts/$perPage);
               ?>
               <div class="card-footer clearfix">
                 <ul class="pagination pagination-sm m-0 float-right">

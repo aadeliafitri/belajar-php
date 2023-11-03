@@ -1,18 +1,26 @@
 <?php 
-include 'koneksi.php';
+require_once 'koneksi.php';
+include '../models/user.php';
 session_start();
 
+$db = new Database();
+$user = new User($db);
+
+$con = $db->getConnection();
+
 if (isset($_POST['login'])) {
-    $user = $_POST['username'];
+    $usrname = $_POST['username'];
     $pass = $_POST['password'];
-    $username = mysqli_real_escape_string($con, $user);
+    $username = mysqli_real_escape_string($con, $usrname);
     $password = mysqli_real_escape_string($con, MD5($pass));
     
     //cek username dan password
-    $sql="select `id`, `name` from `users` 
-            where `username`='$username' and 
-            `password`='$password'";
-    $query = mysqli_query($con, $sql);
+    // $sql="select `id`, `name` from `users` 
+    //         where `username`='$username' and 
+    //         `password`='$password'";
+    // $query = mysqli_query($con, $sql);
+
+    $query = $user->ceklogin($username, $password);
     $jumlah = mysqli_num_rows($query);
     if(empty($user)){             
         header("Location: login.php?gagal=userKosong");
@@ -23,7 +31,7 @@ if (isset($_POST['login'])) {
     }else{
         // session_start();
         //get data
-        while($data = mysqli_fetch_row($query)){
+        while($data = $query->fetch_row()){
             $idUser = $data[0]; //1
             $name = $data[1]; //superadmin
             $_SESSION['id']=$idUser;

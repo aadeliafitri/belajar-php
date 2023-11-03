@@ -1,4 +1,10 @@
-<?php include 'koneksi.php'; ?>
+<?php 
+require_once 'koneksi.php'; 
+include '../models/product.php';
+
+$db = new Database();
+$product = new Product($db);
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -263,9 +269,8 @@
                         <select id="category" name="category" class="form-control">
                         <option>Choose Category</option>
                         <?php 
-                            $sql = "SELECT `id`,`category_name` FROM `product_categories` ORDER BY `category_name`";
-                            $query = mysqli_query($con, $sql);
-                            while($data_k = mysqli_fetch_row($query)){
+                            $categories = $product->getProductCategories();
+                            while($data_k = $categories->fetch_row()){
                             $idCategory = $data_k[0];
                             $categoryName = $data_k[1];
                             ?>
@@ -316,7 +321,7 @@
                         <div class="form-group">
                         <label for="image">Image</label>
                         <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="image" name="file">
+                            <input type="file" class="custom-file-input" id="image" name="files[]" multiple>
                             <label class="custom-file-label" for="image">Choose file</label>
                         </div>
                         </div>
@@ -348,24 +353,6 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-
-  <div class="modal fade" id="modal-addproduct">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title">Add Product</h4>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-       
-      </div>
-      <!-- /.modal-content -->    
-    </div>
-    <!-- /.modal-dialog -->
-  </div>
-  <!-- /.modal -->
   
 
   <footer class="main-footer">
@@ -387,9 +374,16 @@
 <script src="../plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
 <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- bs-custom-file-input -->
+<script src="../plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
 <!-- AdminLTE App -->
 <script src="../dist/js/adminlte.min.js"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="../dist/js/demo.js"></script>
+<script>
+  $(function () {
+  bsCustomFileInput.init();
+});
+</script>
 </body>
 </html>

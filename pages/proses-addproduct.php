@@ -1,5 +1,9 @@
 <?php 
-    include 'koneksi.php';
+    require_once 'koneksi.php';
+    include '../models/product.php';
+
+    $db = new Database();
+    $product = new Product($db);
 
     $productCode = $_POST["product_code"];
     $productName = $_POST["product_name"];
@@ -10,16 +14,31 @@
     $stock = $_POST["stock"];
     $unit = $_POST["unit"];
     $isActive = $_POST["is_active"];
-    $fileLocation = $_FILES['file']['tmp_name'];
-    $fileName = $_FILES['file']['name'];
-    $directory = '../assets/file/'.$fileName;
+    // $fileLocation = $_FILES['file']['tmp_name'];
+    // $fileName = $_FILES['file']['name'];
+    // $directory = '../assets/file/'.$fileName;
 
-    // echo $isActive;
-    if ($isActive == "on") {
-        $isActive = 1;
-    } else {
-        $isActive = 0;
+    // Array untuk menyimpan lokasi file
+    $imageLocations = [];
+
+    // Loop melalui file yang diunggah
+    if (!empty($_FILES['files']['name'][0])) {
+        foreach ($_FILES['files']['tmp_name'] as $key => $tmp_name) {
+            $fileName = $_FILES['files']['name'][$key];
+            $uploadDir = '../assets/file/';
+            $fileLocation = $uploadDir . $fileName;
+
+            if (move_uploaded_file($tmp_name, $fileLocation)) {
+                $imageLocations[] = $fileName;
+            }
+        }
     }
+    // echo $isActive;
+    // if ($isActive == "on") {
+    //     $isActive = 1;
+    // } else {
+    //     $isActive = 0;
+    // }
 
     if (empty($productCode)) {
         header("Location: addproduct.php?notif=tambahkosong&jenis=product_code");
@@ -39,17 +58,10 @@
         header("Location: product.php?notif=tambahkosong&jenis=unit");
     } else  if (empty($isActive)) {
         header("Location: addproduct.php?notif=tambahkosong&jenis=is_active");
-    } else  if (!move_uploaded_file($fileLocation,$directory)) {
-        header("Location: addproduct.php?notif=tambahkosong&jenis=file");
     } else{
-        $sql = "INSERT INTO products (`product_name`, `category_id`, `product_code`, `is_active`, `description`, `price`, `unit`, `discount_amount`, `stock`, `image`) 
-        VALUES('$productName', $categoryProduct, '$productCode', $isActive, '$descProduct', $price, '$unit', '$discAmount', $stock, '$fileName')";
-
-        $query = mysqli_query($con, $sql);
-        if(!$query) {
-            echo "Failed add data: ". mysqli_error($con);
-            die;
-        }
+        // Simpan lokasi gambar dalam format JSON
+        $imageLocationsJSON = json_encode($imageLocations);
+        $product->addProduct($productCode, $productName, $categoryProduct, $descProduct, $price, $discAmount, $stock, $unit, $isActive, $imageLocationsJSON);
 
         header("Location:product.php?notif=tambahberhasil");
     }

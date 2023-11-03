@@ -1,15 +1,21 @@
-<?php include 'koneksi.php'; ?>
+<?php 
+require_once 'koneksi.php'; 
 
-<?php
+include '../models/product.php';
+
 session_start();
+
+$db = new Database();
+$product = new Product($db);
 
 if(isset($_GET['data'])){
 	$productID = $_GET['data'];
 	$_SESSION['id_product']=$productID;
 	//get data produk
-	$selectProduct = "SELECT `product_name`, `product_code`, `category_id`, `description`, `price`, `discount_amount`, `stock`, `unit`, `is_active` FROM `products` WHERE `id`='$productID'";
-	$querySelect = mysqli_query($con, $selectProduct);
-	while($dataProduct = mysqli_fetch_row($querySelect)){
+	$productDetails = $product->getProductDetail($productID);
+  // var_dump($productDetails);
+	
+	while($dataProduct= $productDetails->fetch_row()){
 		$productName= $dataProduct[0];
 		$productCode = $dataProduct[1];
 		$categoryID= $dataProduct[2];
@@ -287,9 +293,8 @@ if(isset($_GET['data'])){
                         <select id="category" name="category" class="form-control">
                         <option>Choose Category</option>
                         <?php 
-                            $sql = "SELECT `id`,`category_name` FROM `product_categories` ORDER BY `category_name`";
-                            $query = mysqli_query($con, $sql);
-                            while($data_k = mysqli_fetch_row($query)){
+                            $categories = $product->getProductCategories();
+                            while($data_k = $categories->fetch_row()){
                             $idCategory = $data_k[0];
                             $categoryName = $data_k[1];
                             ?>

@@ -1,6 +1,11 @@
 <?php 
 
-include 'koneksi.php';
+require_once 'koneksi.php';
+
+include '../models/product.php';
+
+$db = new Database();
+$product = new Product($db);
 
 session_start();
 
@@ -15,9 +20,25 @@ if(isset($_SESSION['id_product'])){
     $stock = $_POST["stock"];
     $unit = $_POST["unit"];
     $isActive = $_POST["is_active"];
-    $fileLocation = $_FILES['file']['tmp_name'];
-    $fileName = $_FILES['file']['name'];
-    $directory = '../assets/file/'.$fileName;
+    // $fileLocation = $_FILES['file']['tmp_name'];
+    // $fileName = $_FILES['file']['name'];
+    // $directory = '../assets/file/'.$fileName;
+
+    // Array untuk menyimpan lokasi file
+    $imageLocations = [];
+
+    // Loop melalui file yang diunggah
+    if (!empty($_FILES['files']['name'][0])) {
+        foreach ($_FILES['files']['tmp_name'] as $key => $tmp_name) {
+            $fileName = $_FILES['files']['name'][$key];
+            $uploadDir = '../assets/file/';
+            $fileLocation = $uploadDir . $fileName;
+
+            if (move_uploaded_file($tmp_name, $fileLocation)) {
+                $imageLocations[] = $fileName;
+            }
+        }
+    }
 
     // echo $isActive;
     if ($isActive == "on") {
@@ -25,15 +46,15 @@ if(isset($_SESSION['id_product'])){
     } else {
         $isActive = 0;
     }
+
+    $currentImage= $product->getCurrentProductImage($productID);
  
     //get image
-    $selectImage = "SELECT `image` FROM `products` WHERE `id`='$productID'";
-    $queryImage = mysqli_query($con,$selectImage);
-    while($dataImage = mysqli_fetch_row($queryImage)){
-        $image= $dataImage[0];
-        // var_dump($image);
-        //echo $foto;
-    }
+    // $selectImage = "SELECT `image` FROM `products` WHERE `id`='$productID'";
+    // $queryImage = mysqli_query($con,$selectImage);
+    // while($dataImage = mysqli_fetch_row($queryImage)){
+    //     $image= $dataImage[0];
+    // }
    
     if(empty($categoryProduct)){
 	    header("Location:editproduct.php?data=$id_produk&notif=editkosong&jenis=product_category");
@@ -54,20 +75,14 @@ if(isset($_SESSION['id_product'])){
 	}else  if(empty($isActive)) {
         header("Location: editproduct.php?data=$id_produk&notif=editkosong&jenis=is_active");
     }else{
-        $fileLocation = $_FILES['file']['tmp_name'];
-	    $fileName = $_FILES['file']['name'];
-	    $directory = '../assets/file/'.$fileName;
-	    if(move_uploaded_file($fileLocation,$directory)){
-            if(!empty($image)){
-                unlink("../assets/file/$image");
-            }
-	        $sql = "UPDATE `products` set `category_id`='$categoryProduct', `product_name`='$productName', `product_code`='$productCode', `description`='$descProduct', `price`='$price', `discount_amount`='$discAmount',`stock`='$stock', `unit`='$unit', `is_active`='$isActive', `image`='$fileName'
-	        WHERE `id`='$productID'";
-	        mysqli_query($con,$sql);
+        $uploadSuccess = $product->handleFileUpload($files, $currentImage);
+	    if($uploadSuccess){
+            $product->deleteCurrentImage($currentImage);
+            $image = $uploadSuccess;
+	        $product->editProduct($productCode, $productName, $categoryProduct, $descProduct, $price, $discAmount, $stock, $unit, $isActive, $image, $productID);
         }else{
-	        $sql = "UPDATE `products` set `category_id`='$categoryProduct', `product_name`='$productName', `product_code`='$productCode', `description`='$descProduct', `price`='$price', `discount_amount`='$discAmount',`stock`='$stock', `unit`='$unit', `is_active`='$isActive', `image`='$image'
-	        WHERE `id`='$productID'";
-	        mysqli_query($con,$sql);
+            $image = $currentImage;
+	        $product->editProduct($productCode, $productName, $categoryProduct, $descProduct, $price, $discAmount, $stock, $unit, $isActive, $image, $productID);
         }
         header("Location:product.php?notif=editberhasil");
     }

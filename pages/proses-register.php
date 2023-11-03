@@ -1,5 +1,11 @@
 <?php
-include 'koneksi.php';
+require_once 'koneksi.php';
+include '../models/user.php';
+
+$db = new Database();
+$user = new User($db);
+
+$con = $db->getConnection();
 
 $nama = $_POST['nama'];
 $email = $_POST['email'];
@@ -18,8 +24,9 @@ if(empty($nama)){
 }else if(empty($password)){
 	header("Location:register.php?notif=tambahkosong");
 }else{
-	$sql = "insert into `users` (`name`, `email`, `phone_number`, `password`, `username`, `group_id`) values ('$nama', '$email', '$phoneNumber', '$password', $phoneNumber, $groupID)";
-	mysqli_query($con,$sql);
+	// $sql = "insert into `users` (`name`, `email`, `phone_number`, `password`, `username`, `group_id`) values ('$nama', '$email', '$phoneNumber', '$password', $phoneNumber, $groupID)";
+	// mysqli_query($con,$sql);
+	$user->register($nama, $email, $phoneNumber, $password, $groupID);
     header("Location:login.php");	
 }
 ?>
